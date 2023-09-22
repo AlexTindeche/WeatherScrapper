@@ -36,8 +36,7 @@ edge_driver.get('https://en.allmetsat.com/metar-taf/europe.php?icao=LROP')
 import time
 
 while True:
-    if (time.localtime().tm_hour == 12 and time.localtime().tm_min == 0 and time.localtime().tm_sec == 0)  or \
-        (time.localtime().tm_hour == 00 and time.localtime().tm_min == 0 and time.localtime().tm_sec == 0):
+    if time.localtime().tm_hour == 12 or time.localtime().tm_hour == 00:
         # refresh the page
         edge_driver.refresh()
         print('Extracted data at ', time.localtime().tm_hour)
@@ -47,7 +46,7 @@ while True:
 
         # get the weather data
         t = edge_driver.find_element(By.XPATH , "//*[contains(text(), 'The report was made')]")
-        print(t.text, ': ')
+        print(time.text, ': ')
         wind = edge_driver.find_element(By.XPATH , "//*[contains(text(), 'Wind')]")
         print(wind.text)
         temp = edge_driver.find_element(By.XPATH , "//*[contains(text(), 'Temperature')]")
@@ -70,7 +69,7 @@ while True:
 
         # Create an weahter object
         from WeatherObject import WeatherObj
-        weather = WeatherObj(t = t.text, wind = wind.text, temperature = temp.text, humidity = hum.text, pressure = press.text, visibility = vis.text, cloudCover = cloud.text)
+        weather = WeatherObj(time = time.text, wind = wind.text, temperature = temp.text, humidity = hum.text, pressure = press.text, visibility = vis.text, cloudCover = cloud.text)
 
         # print the weather object
         # print(weather)
@@ -96,7 +95,7 @@ while True:
 
         # insert the data into the table
         conn.execute('''INSERT INTO WEATHER (TIME, WIND, TEMPERATURE, HUMIDITY, PRESSURE, VISIBILITY, CLOUDCOVER)
-                    VALUES (?, ?, ?, ?, ?, ?, ?);''', (weather.t, weather.wind, weather.temperature, weather.humidity, weather.pressure, weather.visibility, weather.cloudCover))
+                    VALUES (?, ?, ?, ?, ?, ?, ?);''', (weather.time, weather.wind, weather.temperature, weather.humidity, weather.pressure, weather.visibility, weather.cloudCover))
 
         # commit the changes
         conn.commit()
